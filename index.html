@@ -4,18 +4,284 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>綠色足跡 - 香港可持續旅遊平台</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="Styles/styles.css">
 </head>
 <body>
-    <h1>歡迎使用綠色足跡平台！</h1>
-    <p>這是一個幫助你規劃可持續旅行的工具。</p>
-    <!-- 我們後續會在這裡添加地圖、景點列表等 -->
-    <div id="map" style="height: 400px; width: 100%;"></div>
-    <script src="scripts/script.js"></script>
-    
+    <!-- 導航欄 -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <span>綠色足跡</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#">首頁</a>
+                    <a href="#">探索景點</a>
+                    <a href="#">旅遊規劃</a>
+                    <a href="#">環保貼士</a>
+                    <a href="#">關於我們</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主區域 -->
+    <section class="hero">
+        <div class="container">
+            <h1>探索香港的可持續旅遊</h1>
+            <p>綠色足跡幫助您以環保方式體驗香港之美，減少碳足跡，支持本地社區，創造難忘回憶。</p>
+            <a href="#map" class="btn">開始探索</a>
+        </div>
+    </section>
+
+    <!-- 天氣資訊 -->
+    <div class="container">
+        <div class="weather-card">
+            <div class="weather-header">
+                <i class="fas fa-cloud-sun"></i>
+                <h2>香港即時天氣</h2>
+            </div>
+            <div id="weather-info">載入中...</div>
+        </div>
+    </div>
+
+    <!-- 地圖區域 -->
+    <section class="map-section">
+        <div class="container">
+            <h2 class="section-title">探索香港綠色景點</h2>
+            <div id="map"></div>
+        </div>
+    </section>
+
+    <!-- 功能區域 -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">為什麼選擇綠色足跡？</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-tree"></i>
+                    <h3>環保景點</h3>
+                    <p>探索經過認證的環保景點，支持可持續旅遊發展。</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-bus"></i>
+                    <h3>綠色交通</h3>
+                    <p>獲取低碳出行路線建議，減少旅行碳足跡。</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-recycle"></i>
+                    <h3>減少浪費</h3>
+                    <p>學習如何減少旅行中的浪費，保護環境。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 頁腳 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>綠色足跡</h3>
+                    <p>我們致力於推廣香港的可持續旅遊，讓旅客在探索這座美麗城市的同時，也能保護環境。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速連結</h3>
+                    <a href="#">首頁</a>
+                    <a href="#">綠色景點</a>
+                    <a href="#">旅遊規劃</a>
+                    <a href="#">環保貼士</a>
+                </div>
+                <div class="footer-section">
+                    <h3>聯繫我們</h3>
+                    <p><i class="fas fa-envelope"></i> info@greenfootprint.hk</p>
+                    <p><i class="fas fa-phone"></i> +852 1234 5678</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 綠色足跡 - 香港可持續旅遊平台. 版權所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 天氣API - 使用香港天文台開放數據API
+        async function fetchWeatherData() {
+            try {
+                // 獲取本港地區天氣報告 (rhrread)
+                const currentWeatherResponse = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc');
+                const currentWeather = await currentWeatherResponse.json();
+                
+                // 獲取本港地區天氣預報 (flw)
+                const forecastResponse = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=tc');
+                const forecast = await forecastResponse.json();
+                
+                // 獲取紫外線指數 (使用開放數據API)
+                const uvResponse = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=uv&lang=tc');
+                const uvData = await uvResponse.json();
+                
+                console.log('當前天氣數據:', currentWeather);
+                console.log('預報數據:', forecast);
+                console.log('紫外線數據:', uvData);
+                
+                // 處理溫度數據
+                let temp = 'N/A';
+                if (currentWeather.temperature && currentWeather.temperature.data && currentWeather.temperature.data.length > 0) {
+                    temp = currentWeather.temperature.data[0].value;
+                }
+                
+                // 處理濕度數據
+                let humidity = 'N/A';
+                if (currentWeather.humidity && currentWeather.humidity.data && currentWeather.humidity.data.length > 0) {
+                    humidity = currentWeather.humidity.data[0].value;
+                }
+                
+                // 處理天氣描述
+                const desc = forecast.forecastDesc || forecast.generalSituation || 'N/A';
+                
+                // 處理紫外線數據
+                let uvIndex = 'N/A';
+                let uvIntensity = 'N/A';
+                if (uvData && uvData.data && uvData.data.length > 0) {
+                    uvIndex = uvData.data[0].value;
+                    const uv = parseInt(uvIndex);
+                    if (!isNaN(uv)) {
+                        if (uv <= 2) uvIntensity = '低';
+                        else if (uv <= 5) uvIntensity = '中等';
+                        else if (uv <= 7) uvIntensity = '高';
+                        else if (uv <= 10) uvIntensity = '很高';
+                        else uvIntensity = '極高';
+                    }
+                }
+                
+                // 更新時間
+                const updateTime = currentWeather.updateTime || forecast.updateTime || new Date().toLocaleString('zh-HK');
+                
+                document.getElementById('weather-info').innerHTML = `
+                    <div class="weather-details">
+                        <div class="weather-main">
+                            <p><strong>天氣預測：</strong>${desc}</p>
+                            <p><strong>氣溫：</strong>${temp} 度</p>
+                            <p><strong>相對濕度：</strong>百分之 ${humidity}</p>
+                        </div>
+                        <div class="weather-uv">
+                            <p><strong>過去一小時，京士柏錄得的平均紫外線指數：</strong>${uvIndex}</p>
+                            <p><strong>紫外線強度：</strong>${uvIntensity}</p>
+                        </div>
+                        <div class="weather-update">
+                            <p><strong>更新時間：</strong>${updateTime}</p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('API 請求失敗：', error);
+                document.getElementById('weather-info').innerHTML = `
+                    <div class="weather-error">
+                        <p>無法載入天氣資料，請稍後重試。</p>
+                        <p>錯誤詳情：${error.message}</p>
+                        <p>資料來源：<a href="https://data.weather.gov.hk/weatherAPI/doc/HKO_Open_Data_API_Documentation_sc.pdf" target="_blank">香港天文台開放數據API</a></p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 載入天氣數據
+        fetchWeatherData();
+        
+        // 備用天氣數據獲取方法
+        async function fetchBackupWeatherData() {
+            try {
+                // 使用備用API或模擬數據
+                const mockWeatherData = {
+                    temperature: { data: [{ value: "29" }] },
+                    humidity: { data: [{ value: "76" }] },
+                    updateTime: new Date().toISOString()
+                };
+                
+                const mockForecast = {
+                    forecastDesc: "多雲，間中有陽光",
+                    generalSituation: "多雲，間中有陽光"
+                };
+                
+                const mockUV = {
+                    data: [{ value: "4" }]
+                };
+                
+                // 處理數據
+                const temp = mockWeatherData.temperature.data[0].value;
+                const humidity = mockWeatherData.humidity.data[0].value;
+                const desc = mockForecast.forecastDesc || mockForecast.generalSituation;
+                const uvIndex = mockUV.data[0].value;
+                
+                let uvIntensity = '中等';
+                const uv = parseInt(uvIndex);
+                if (uv <= 2) uvIntensity = '低';
+                else if (uv <= 5) uvIntensity = '中等';
+                else if (uv <= 7) uvIntensity = '高';
+                else if (uv <= 10) uvIntensity = '很高';
+                else uvIntensity = '極高';
+                
+                const updateTime = new Date().toLocaleString('zh-HK');
+                
+                document.getElementById('weather-info').innerHTML = `
+                    <div class="weather-details">
+                        <div class="weather-main">
+                            <p><strong>天氣預測：</strong>${desc}</p>
+                            <p><strong>氣溫：</strong>${temp} 度</p>
+                            <p><strong>相對濕度：</strong>百分之 ${humidity}</p>
+                        </div>
+                        <div class="weather-uv">
+                            <p><strong>過去一小時，京士柏錄得的平均紫外線指數：</strong>${uvIndex}</p>
+                            <p><strong>紫外線強度：</strong>${uvIntensity}</p>
+                        </div>
+                        <div class="weather-update">
+                            <p><strong>更新時間：</strong>${updateTime}</p>
+                            <p><em>注意：此為示例數據，實際數據請參考香港天文台官方網站</em></p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('備用天氣數據載入失敗：', error);
+            }
+        }
+        
+        // 如果主要API失敗，嘗試備用方法
+        setTimeout(() => {
+            if (document.getElementById('weather-info').innerHTML.includes('無法載入天氣資料')) {
+                console.log('嘗試載入備用天氣數據...');
+                fetchBackupWeatherData();
+            }
+        }, 3000);
+
+        // 地圖初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map').setView([22.3193, 114.1694], 11);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+           
+            
+            greenSpots.forEach(spot => {
+                L.marker(spot.coords)
+                    .addTo(map)
+                    .bindPopup(`
+                        <h3>${spot.name}</h3>
+                        <p>${spot.description}</p>
+                    `);
+            });
+        });
+    </script>
 </body>
 </html>

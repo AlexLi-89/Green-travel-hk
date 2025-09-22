@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>香港旅行 - 天氣報告</title>
+</head>
+<body>
+    <div id="weather-info">載入中...</div>
+
+    <script>
+        fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=tc')
+            .then(response => response.json())
+            .then(data => {
+                // 只顯示天氣描述
+                const desc = data.forecastDesc;
+                document.getElementById('weather-info').innerHTML = `
+                    <p>天氣：${desc}</p>
+                    <p>資料來源：香港天文台</p>
+                `;
+            })
+            .catch(error => {
+                console.error('API 請求失敗：', error);
+                document.getElementById('weather-info').innerHTML = '無法載入天氣資料，請稍後重試。';
+            });
+    </script>
+</body>
+</html>
