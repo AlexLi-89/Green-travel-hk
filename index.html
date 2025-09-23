@@ -3,19 +3,1586 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>綠色足跡 - 香港可持續旅遊平台</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <!-- Leaflet CSS -->
+    <title>香港綠色旅遊平台</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --primary-dark: #1b5e20;
+            --secondary: #ff9800;
+            --text: #333;
+            --text-light: #64748b;
+            --light-bg: #f5f9f5;
+            --white: #ffffff;
+            --shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            --shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.18);
+            --shadow-button: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --shadow-button-hover: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--text);
+            line-height: 1.7;
+            scroll-behavior: smooth;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: padding 0.3s ease, background 0.5s ease;
+        }
+        
+        header.scrolled {
+            padding: 1rem 2rem;
+            background: var(--primary-dark);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover i {
+            transform: rotate(15deg);
+        }
+        
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        nav a.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 3px;
+        }
+        
+        .hero {
+            background: linear-gradient(rgba(46, 125, 50, 0.85), rgba(46, 125, 50, 0.9)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 6rem 2rem;
+            border-radius: 16px;
+            text-align: center;
+            margin: 2rem auto;
+            max-width: 1400px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>');
+            opacity: 0.5;
+        }
+        
+        .hero h2 {
+            font-size: 3.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .hero p {
+            font-size: 1.4rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            position: relative;
+            line-height: 1.8;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2.2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-button);
+            position: relative;
+            overflow: hidden;
+            font-size: 1.1rem;
+        }
+        
+        .btn:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover:after {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            background: #e68900;
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-button-hover);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 6px 20px rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2.5rem;
+        }
+        
+        .metric-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .metric-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--primary-light);
+        }
+        
+        .metric-card:nth-child(2):before {
+            background: var(--secondary);
+        }
+        
+        .metric-card:nth-child(3):before {
+            background: #3b82f6;
+        }
+        
+        .metric-card:nth-child(4):before {
+            background: #8b5cf6;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .metric-card h3 {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        
+        .metric-card h3 i {
+            opacity: 0.8;
+        }
+        
+        .metric-value {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -1px;
+        }
+        
+        .metric-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            margin-top: auto;
+        }
+        
+        .positive {
+            color: var(--primary-light);
+        }
+        
+        .negative {
+            color: #ef4444;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin: 4rem 0 3rem;
+            color: var(--primary-dark);
+            font-size: 2.6rem;
+            position: relative;
+            padding-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 6px;
+            background: var(--secondary);
+            margin: 1rem auto;
+            border-radius: 3px;
+        }
+        
+        .map-container {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2.5rem;
+        }
+        
+        #realtime-map, #sustainable-map {
+            height: 500px;
+            width: 100%;
+            z-index: 1;
+        }
+        
+        .map-controls {
+            padding: 1.5rem;
+            background: var(--primary-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+        }
+        
+        .filter-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: var(--white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: var(--shadow-button);
+        }
+        
+        .filter-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-button-hover);
+        }
+        
+        .filter-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .search-box {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            padding: 0.4rem;
+            box-shadow: var(--shadow-button);
+            transition: all 0.3s;
+        }
+        
+        .search-box:focus-within {
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+        }
+        
+        .search-box input {
+            border: none;
+            padding: 0.8rem 1.5rem;
+            outline: none;
+            width: 240px;
+            font-size: 1rem;
+            background: transparent;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+        }
+        
+        .search-box button {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+        
+        .search-box button:hover {
+            background: var(--primary-dark);
+        }
+        
+        .info-panel {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .info-panel h2 {
+            margin-bottom: 2rem;
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--light-bg);
+            font-weight: 700;
+        }
+        
+        .spot-info {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .spot-info.active {
+            display: block;
+        }
+        
+        .spot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .spot-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            letter-spacing: -0.5px;
+        }
+        
+        .spot-category {
+            background: var(--primary-light);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .spot-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .spot-metric {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--light-bg);
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .spot-metric:hover {
+            transform: scale(1.05);
+        }
+        
+        .spot-metric i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .spot-metric .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .spot-metric .label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .crowd-level {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-top: 0.6rem;
+        }
+        
+        .crowd-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .low {
+            background: var(--primary-light);
+        }
+        
+        .medium {
+            background: var(--secondary);
+        }
+        
+        .high {
+            background: #ef4444;
+        }
+        
+        .facility-list {
+            margin-top: 2rem;
+        }
+        
+        .facility-list h3 {
+            margin-bottom: 1.2rem;
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-bg);
+        }
+        
+        .facility-item {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.3s;
+            border-radius: 8px;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        .facility-item:hover {
+            background: rgba(245, 249, 245, 0.8);
+        }
+        
+        .facility-item:last-child {
+            border-bottom: none;
+        }
+        
+        .facility-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.3rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        
+        .facility-info {
+            flex: 1;
+        }
+        
+        .facility-name {
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            font-size: 1.1rem;
+        }
+        
+        .facility-status {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .available {
+            color: var(--primary-light);
+        }
+        
+        .busy {
+            color: var(--secondary);
+        }
+        
+        .full {
+            color: #ef4444;
+        }
+        
+        .weather-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: var(--light-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .weather-icon {
+            font-size: 3rem;
+            color: var(--primary);
+        }
+        
+        .weather-details {
+            flex: 1;
+        }
+        
+        .temperature {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            letter-spacing: -1px;
+        }
+        
+        .weather-desc {
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+        
+        .weather-extras {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 0.6rem;
+            flex-wrap: wrap;
+        }
+        
+        .weather-extra {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .carbon-calculator {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 4rem;
+        }
+        
+        .carbon-calculator p {
+            margin-bottom: 1.8rem;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .calculator-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: var(--white);
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            outline: none;
+            transform: translateY(-2px);
+        }
+        
+        .result {
+            text-align: center;
+            padding: 2rem;
+            background: var(--light-bg);
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            display: none;
+            border-left: 6px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .result.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1.2rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        #carbon-output {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+        
+        #carbon-tips {
+            color: var(--text-light);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .tips-section {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 4rem;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .tip-card {
+            background: var(--light-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border-left: 6px solid var(--primary);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .tip-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .tip-card h4 {
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 700;
+        }
+        
+        .tip-card h4 i {
+            color: var(--primary);
+        }
+        
+        .tip-card p {
+            line-height: 1.7;
+            color: var(--text);
+        }
+        
+        footer {
+            background: var(--primary-dark);
+            color: white;
+            padding: 5rem 2rem 2.5rem;
+            text-align: center;
+            margin-top: 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        footer:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, var(--primary-light), var(--secondary), var(--primary-light));
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            text-align: left;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 2rem;
+            font-size: 1.6rem;
+            position: relative;
+            padding-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .footer-section h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 3px;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section li {
+            margin-bottom: 1.2rem;
+        }
+        
+        .footer-section a {
+            color: #ddd;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+            font-size: 1.05rem;
+        }
+        
+        .footer-section a:hover {
+            color: var(--secondary);
+            padding-left: 8px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s;
+            padding: 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .social-links a:hover {
+            background: var(--secondary);
+            transform: translateY(-5px) rotate(10deg);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .copyright {
+            margin-top: 4rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 1rem;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .update-time {
+            margin-top: 1.2rem;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+        }
+        
+        .platform-tabs {
+            display: flex;
+            margin-bottom: 3rem;
+            border-bottom: 3px solid var(--primary-light);
+            position: relative;
+            border-radius: 12px 12px 0 0;
+            overflow: hidden;
+        }
+        
+        .tab {
+            padding: 1.2rem 2rem;
+            background: var(--light-bg);
+            cursor: pointer;
+            border-radius: 12px 12px 0 0;
+            font-weight: 700;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+            font-size: 1.1rem;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            white-space: nowrap;
+            flex: 0 1 auto;
+            min-width: 150px;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .tab:not(.active):hover {
+            background: #e8f5e9;
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .platform-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .platform-content.active {
+            display: block;
+        }
+        
+        .default-message {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--text-light);
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            line-height: 1.8;
+            background: rgba(245, 249, 245, 0.5);
+        }
+        
+        .default-message i {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: #cbd5e1;
+            display: block;
+        }
+        
+        .default-message p {
+            font-size: 1.1rem;
+        }
+        
+        /* 新的横向布局样式 */
+        .platform-container {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .platform-main {
+            flex: 1;
+        }
+        
+        .platform-sidebar {
+            width: 350px;
+        }
+        
+        @media (max-width: 1024px) {
+            .platform-container {
+                flex-direction: column;
+            }
+            
+            .platform-sidebar {
+                width: 100%;
+            }
+            
+            .info-panel {
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+            
+            nav a {
+                padding: 0.6rem 1rem;
+                font-size: 0.95rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .spot-metrics {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero h2 {
+                font-size: 2.4rem;
+            }
+            
+            .hero {
+                padding: 4rem 1.5rem;
+            }
+            
+            .map-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-options {
+                justify-content: center;
+            }
+            
+            .platform-tabs {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+            
+            .tab {
+                border-radius: 12px 12px 0 0;
+                text-align: center;
+                min-width: 140px;
+                padding: 1rem 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>歡迎使用綠色足跡平台！</h1>
-    <p>這是一個幫助你規劃可持續旅行的工具。</p>
-    <!-- 我們後續會在這裡添加地圖、景點列表等 -->
-    <div id="map" style="height: 400px; width: 100%;"></div>
-    <script src="scripts/script.js"></script>
-    
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo">
+                <i class="fas fa-leaf"></i>
+                <h1>香港綠色旅遊平台</h1>
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">首頁</a></li>
+                    <li><a href="#">景區指南</a></li>
+                    <li><a href="#">天氣預報</a></li>
+                    <li><a href="#">設施查詢</a></li>
+                    <li><a href="#">遊客服務</a></li>
+                    <li><a href="#">碳足跡計算</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h2>探索香港的可持續旅遊景點</h2>
+        <p>香港綠色旅遊平台幫助您規劃環保旅行，減少碳足跡，支持本地社區，並享受香港的自然美景。</p>
+        <a href="#realtime-map" class="btn btn-outline">開始探索</a>
+    </div>
+
+    <div class="container">
+        <div class="platform-tabs">
+            <div class="tab active" data-tab="realtime">實時信息</div>
+            <div class="tab" data-tab="sustainable">可持續旅遊</div>
+        </div>
+
+        <!-- 實時信息平台 -->
+        <div id="realtime-platform" class="platform-content active">
+            <div class="platform-container">
+                <main class="platform-main">
+                    <div class="dashboard">
+                        <div class="metric-card">
+                            <h3><i class="fas fa-users"></i> 今日總遊客量</h3>
+                            <div class="metric-value">42,580</div>
+                            <div class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>比昨日增加 8.5%</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3><i class="fas fa-chart-line"></i> 平均擁擠程度</h3>
+                            <div class="metric-value">中等</div>
+                            <div class="metric-change negative">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>比上週增加 12%</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3><i class="fas fa-restroom"></i> 公共廁所空閒率</h3>
+                            <div class="metric-value">68%</div>
+                            <div class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>比上週提升 5%</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <h3><i class="fas fa-temperature-half"></i> 平均溫度</h3>
+                            <div class="metric-value">26°C</div>
+                            <div class="metric-change">
+                                <i class="fas fa-minus"></i>
+                                <span>與昨日持平</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="map-container">
+                        <div class="map-controls">
+                            <div class="filter-options">
+                                <button class="filter-btn active" data-filter="all">
+                                    <i class="fas fa-globe"></i> 全部景區
+                                </button>
+                                <button class="filter-btn" data-filter="popular">
+                                    <i class="fas fa-users"></i> 熱門景區
+                                </button>
+                                <button class="filter-btn" data-filter="quiet">
+                                    <i class="fas fa-tree"></i> 較少遊客
+                                </button>
+                            </div>
+                            <div class="search-box">
+                                <input type="text" placeholder="搜索景區...">
+                                <button><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                        <div id="realtime-map"></div>
+                    </div>
+                </main>
+
+                <aside class="platform-sidebar">
+                    <div class="info-panel">
+                        <h2><i class="fas fa-info-circle"></i> 景區信息</h2>
+                        <div class="default-message">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>點擊地圖上的標記查看景區詳細信息</p>
+                        </div>
+                        
+                        <!-- 太平山景區信息 -->
+                        <div class="spot-info" id="victoria-peak">
+                            <div class="spot-header">
+                                <div class="spot-name">太平山頂</div>
+                                <div class="spot-category">熱門景點</div>
+                            </div>
+                            <p>太平山頂是香港最受歡迎的旅遊景點之一，可以俯瞰維多利亞港和香港全景。</p>
+                            
+                            <div class="spot-metrics">
+                                <div class="spot-metric">
+                                    <i class="fas fa-users"></i>
+                                    <div class="value">高</div>
+                                    <div class="label">擁擠程度</div>
+                                    <div class="crowd-level">
+                                        <div class="crowd-indicator high"></div>
+                                        <span>非常擁擠</span>
+                                    </div>
+                                </div>
+                                <div class="spot-metric">
+                                    <i class="fas fa-temperature-high"></i>
+                                    <div class="value">25°C</div>
+                                    <div class="label">當前溫度</div>
+                                </div>
+                                <div class="spot-metric">
+                                    <i class="fas fa-restroom"></i>
+                                    <div class="value">45%</div>
+                                    <div class="label">廁所空閒率</div>
+                                </div>
+                                <div class="spot-metric">
+                                    <i class="fas fa-tint"></i>
+                                    <div class="value">3處</div>
+                                    <div class="label">飲水機數量</div>
+                                </div>
+                            </div>
+                            
+                            <div class="weather-info">
+                                <div class="weather-icon">
+                                    <i class="fas fa-cloud-sun"></i>
+                                </div>
+                                <div class="weather-details">
+                                    <div class="temperature">25°C</div>
+                                    <div class="weather-desc">局部多雲，濕度75%</div>
+                                    <div class="weather-extras">
+                                        <div class="weather-extra">
+                                            <i class="fas fa-wind"></i>
+                                            <span>東南風 12km/h</span>
+                                        </div>
+                                        <div class="weather-extra">
+                                            <i class="fas fa-sun"></i>
+                                            <span>紫外線: 中等</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="facility-list">
+                                <h3>公共設施狀態</h3>
+                                <div class="facility-item">
+                                    <div class="facility-icon">
+                                        <i class="fas fa-restroom"></i>
+                                    </div>
+                                    <div class="facility-info">
+                                        <div class="facility-name">山頂廣場廁所</div>
+                                        <div class="facility-status full">非常繁忙 (等候時間: 15分鐘)</div>
+                                    </div>
+                                </div>
+                                <div class="facility-item">
+                                    <div class="facility-icon">
+                                        <i class="fas fa-restroom"></i>
+                                    </div>
+                                    <div class="facility-info">
+                                        <div class="facility-name">凌霄閣廁所</div>
+                                        <div class="facility-status busy">繁忙 (等候時間: 8分鐘)</div>
+                                    </div>
+                                </div>
+                                <div class="facility-item">
+                                    <div class="facility-icon">
+                                        <i class="fas fa-tint"></i>
+                                    </div>
+                                    <div class="facility-info">
+                                        <div class="facility-name">山頂廣場飲水機</div>
+                                        <div class="facility-status available">正常使用</div>
+                                    </div>
+                                </div>
+                                <div class="facility-item">
+                                    <div class="facility-icon">
+                                        <i class="fas fa-tint"></i>
+                                    </div>
+                                    <div class="facility-info">
+                                        <div class="facility-name">獅子亭飲水機</div>
+                                        <div class="facility-status available">正常使用</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- 可持續旅遊平台 -->
+        <div id="sustainable-platform" class="platform-content">
+            <h2 class="section-title">探索可持續景點</h2>
+            
+            <section class="map-container">
+                <div class="map-controls">
+                    <div class="filter-options">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="fas fa-globe"></i> 全部
+                        </button>
+                        <button class="filter-btn" data-filter="park">
+                            <i class="fas fa-tree"></i> 公園自然
+                        </button>
+                        <button class="filter-btn" data-filter="eco-hotel">
+                            <i class="fas fa-hotel"></i> 環保住宿
+                        </button>
+                        <button class="filter-btn" data-filter="vegan">
+                            <i class="fas fa-utensils"></i> 素食餐廳
+                        </button>
+                        <button class="filter-btn" data-filter="market">
+                            <i class="fas fa-shopping-basket"></i> 本地市場
+                        </button>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" placeholder="搜索景點...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div id="sustainable-map"></div>
+            </section>
+
+            <h2 class="section-title">碳足跡計算器</h2>
+            
+            <section class="carbon-calculator">
+                <p>計算您的旅行碳足跡，了解如何減少對環境的影響</p>
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label for="transport">交通方式</label>
+                        <select id="transport">
+                            <option value="0.1">地鐵/火車 (每公里)</option>
+                            <option value="0.2">巴士 (每公里)</option>
+                            <option value="0.15">電動車 (每公里)</option>
+                            <option value="0.25">汽油車 (每公里)</option>
+                            <option value="0.3">的士 (每公里)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="distance">距離 (公里)</label>
+                        <input type="number" id="distance" placeholder="輸入距離">
+                    </div>
+                    <div class="form-group">
+                        <label for="accommodation">住宿類型</label>
+                        <select id="accommodation">
+                            <option value="5">環保酒店 (每晚)</option>
+                            <option value="10">普通酒店 (每晚)</option>
+                            <option value="3">民宿/青年旅舍 (每晚)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nights">住宿晚數</label>
+                        <input type="number" id="nights" placeholder="輸入晚數">
+                    </div>
+                </div>
+                <button class="btn" id="calculate-btn">計算碳足跡</button>
+                <div class="result" id="result">
+                    <h3>您的旅行碳足跡估算</h3>
+                    <p id="carbon-output">0 kg CO₂</p>
+                    <p id="carbon-tips"></p>
+                </div>
+            </section>
+
+            <h2 class="section-title">可持續旅遊貼士</h2>
+            
+            <section class="tips-section">
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <h4><i class="fas fa-bus"></i> 選擇環保交通</h4>
+                        <p>優先使用公共交通工具、步行或騎單車，減少碳排放。</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-shopping-bag"></i> 支持本地經濟</h4>
+                        <p>光顧本地商店和餐廳，購買本地產品，支持社區發展。</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-recycle"></i> 減少塑膠使用</h4>
+                        <p>自備水樽、購物袋和餐具，避免使用一次性塑膠產品。</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-lightbulb"></i> 節約能源</h4>
+                        <p>在住宿處關閉不必要的電器，縮短淋浴時間，節約用水用電。</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-leaf"></i> 尊重自然環境</h4>
+                        <p>不留下垃圾，不破壞自然景觀，遵守保護區的規定。</p>
+                    </div>
+                    <div class="tip-card">
+                        <h4><i class="fas fa-hotel"></i> 選擇綠色住宿</h4>
+                        <p>優先選擇有環保認證的酒店或民宿，支持可持續旅遊業。</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>關於香港綠色旅遊平台</h3>
+                <p>香港綠色旅遊平台是香港領先的可持續旅遊平台，致力於推廣環保旅行方式，保護香港的自然與文化遺產。</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>快速鏈接</h3>
+                <ul>
+                    <li><a href="#">首頁</a></li>
+                    <li><a href="#">景點探索</a></li>
+                    <li><a href="#">行程規劃</a></li>
+                    <li><a href="#">碳足跡計算</a></li>
+                    <li><a href="#">環保貼士</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>聯絡我們</h3>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> info@greenhongkong.hk</li>
+                    <li><i class="fas fa-phone"></i> +852 1234 5678</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 香港中環綠色大廈18樓</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>香港綠色旅遊平台 &copy; 2023 - 提供最新景區人流量、設施狀態、天氣信息和可持續旅遊指南</p>
+            <div class="update-time">最後更新: <span id="update-time">2023年11月15日 14:30</span></div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 頁頭滾動效果
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // 平台切換功能
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // 移除所有active類
+                tabs.forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.platform-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // 為當前標籤添加active類
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(`${tabId}-platform`).classList.add('active');
+                
+                // 調整地圖大小
+                setTimeout(() => {
+                    if (tabId === 'realtime') {
+                        realtimeMap.invalidateSize();
+                    } else {
+                        sustainableMap.invalidateSize();
+                    }
+                }, 100);
+            });
+        });
+
+        // 初始化實時信息地圖
+        const realtimeMap = L.map('realtime-map').setView([22.3193, 114.1694], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(realtimeMap);
+        
+        // 初始化可持續旅遊地圖
+        const sustainableMap = L.map('sustainable-map').setView([22.3193, 114.1694], 11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(sustainableMap);
+
+        // 香港景區數據
+        const spots = [
+            {
+                id: "victoria-peak",
+                name: "太平山頂",
+                type: "popular",
+                lat: 22.2750,
+                lng: 114.1450,
+                crowd: "high",
+                temperature: 25,
+                toiletAvailability: 45,
+                waterFountains: 3,
+                weather: {
+                    icon: "cloud-sun",
+                    description: "局部多雲，濕度75%",
+                    wind: "東南風 12km/h",
+                    uv: "中等"
+                }
+            },
+            {
+                id: "ocean-park",
+                name: "海洋公園",
+                type: "popular",
+                lat: 22.2433,
+                lng: 114.1743,
+                crowd: "high",
+                temperature: 27,
+                toiletAvailability: 30,
+                waterFountains: 5,
+                weather: {
+                    icon: "sun",
+                    description: "晴朗，濕度70%",
+                    wind: "南風 10km/h",
+                    uv: "高"
+                }
+            }
+            // 可添加更多景點數據
+        ];
+
+        // 在實時地圖上添加標記
+        spots.forEach(spot => {
+            // 根據擁擠程度設置不同顏色的標記
+            let markerColor = "green";
+            if (spot.crowd === "medium") markerColor = "orange";
+            if (spot.crowd === "high") markerColor = "red";
+            
+            const markerIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background-color: ${markerColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px ${markerColor};"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+            
+            const marker = L.marker([spot.lat, spot.lng], {icon: markerIcon}).addTo(realtimeMap);
+            marker.bindTooltip(spot.name);
+            
+            // 點擊標記顯示景點信息
+            marker.on('click', function() {
+                document.querySelectorAll('.spot-info').forEach(info => {
+                    info.classList.remove('active');
+                });
+                const spotInfo = document.getElementById(spot.id);
+                if (spotInfo) {
+                    spotInfo.classList.add('active');
+                    document.querySelector('.default-message').style.display = 'none';
+                } else {
+                    document.querySelector('.default-message').style.display = 'block';
+                    document.querySelector('.default-message p').textContent = '該景點的詳細信息即將推出，敬請期待！';
+                }
+            });
+        });
+
+        // 碳足跡計算功能
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            const transport = parseFloat(document.getElementById('transport').value);
+            const distance = parseFloat(document.getElementById('distance').value) || 0;
+            const accommodation = parseFloat(document.getElementById('accommodation').value);
+            const nights = parseFloat(document.getElementById('nights').value) || 0;
+            
+            const carbon = (transport * distance) + (accommodation * nights);
+            const resultElement = document.getElementById('result');
+            const outputElement = document.getElementById('carbon-output');
+            const tipsElement = document.getElementById('carbon-tips');
+            
+            outputElement.textContent = carbon.toFixed(2) + ' kg CO₂';
+            
+            // 根據碳排放量給出建議
+            let tips = '';
+            if (carbon < 5) {
+                tips = '非常棒！您的旅行碳足跡很低，繼續保持環保旅行習慣。';
+            } else if (carbon < 20) {
+                tips = '不錯的嘗試！您可以考慮使用更多公共交通來進一步減少碳足跡。';
+            } else if (carbon < 50) {
+                tips = '您的碳足跡中等，可以選擇環保住宿並減少自駕來降低影響。';
+            } else {
+                tips = '您的碳足跡較高，建議優先使用公共交通，選擇環保住宿，並減少旅行距離。';
+            }
+            tipsElement.textContent = tips;
+            
+            resultElement.classList.add('show');
+            
+            // 平滑滾動到結果
+            resultElement.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+        });
+
+        // 過濾按鈕功能
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除同組按鈕的active類
+                const parent = this.parentElement;
+                parent.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                // 為當前按鈕添加active類
+                this.classList.add('active');
+                
+                // 這裡可以添加過濾地圖標記的邏輯
+                const filter = this.getAttribute('data-filter');
+                console.log('過濾類型: ' + filter);
+            });
+        });
+    </script>
 </body>
 </html>
