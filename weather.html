@@ -1,27 +1,281 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>香港旅行 - 天氣報告</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香港分區氣溫</title>
 </head>
 <body>
-    <div id="weather-info">載入中...</div>
+    <div id="temperature-widget" style="
+        width: 350px;
+        height: 400px;
+        border: 2px solid #2ecc71;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px;
+        background: #f8f9fa;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        overflow-y: auto;
+        display: inline-block;
+        vertical-align: top;
+    ">
+        <h3 style="color: #2ecc71; margin-bottom: 15px;">香港分區氣溫</h3>
+        <div id="temperature-data" style="font-size: 14px; line-height: 1.6;">
+            載入中...
+        </div>
+    </div>
+
+    <div id="warning-widget" style="
+        width: 350px;
+        height: 400px;
+        border: 2px solid #e74c3c;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px;
+        background: #f8f9fa;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        overflow-y: auto;
+        display: inline-block;
+        vertical-align: top;
+    ">
+        <h3 style="color: #e74c3c; margin-bottom: 15px;">天氣警告</h3>
+        <div id="warning-data" style="font-size: 14px; line-height: 1.6;">
+            載入中...
+        </div>
+    </div>
+
+    <div id="bulletin-widget" style="
+        width: 350px;
+        height: 400px;
+        border: 2px solid #f39c12;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px;
+        background: #f8f9fa;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        overflow-y: auto;
+        display: inline-block;
+        vertical-align: top;
+    ">
+        <h3 style="color: #f39c12; margin-bottom: 15px;">天氣詳細報告</h3>
+        <div id="bulletin-data" style="font-size: 14px; line-height: 1.6;">
+            載入中...
+        </div>
+    </div>
 
     <script>
-        fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=tc')
-            .then(response => response.json())
-            .then(data => {
-                // 只顯示天氣描述
-                const desc = data.forecastDesc;
-                document.getElementById('weather-info').innerHTML = `
-                    <p>天氣：${desc}</p>
-                    <p>資料來源：香港天文台</p>
-                `;
-            })
-            .catch(error => {
+        // 香港分區天氣API - 最新一分鐘平均氣溫
+        const TEMPERATURE_API = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc';
+        
+        // 香港天氣警告API - 使用正確的警告API
+        const WARNING_API = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc';
+        
+        // 香港天氣詳細報告API - 使用正確的API
+        const BULLETIN_API = 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=tc';
+        
+        async function loadTemperatureData() {
+            try {
+                const response = await fetch(TEMPERATURE_API);
+                const data = await response.json();
+                
+                if (data.temperature && data.temperature.data) {
+                    displayTemperatureData(data.temperature.data);
+                } else {
+                    document.getElementById('temperature-data').innerHTML = '無法獲取氣溫數據';
+                }
+            } catch (error) {
                 console.error('API 請求失敗：', error);
-                document.getElementById('weather-info').innerHTML = '無法載入天氣資料，請稍後重試。';
+                document.getElementById('temperature-data').innerHTML = '載入失敗，請稍後重試';
+            }
+        }
+        
+        async function loadWarningData() {
+            try {
+                const response = await fetch(WARNING_API);
+                const data = await response.json();
+                
+                console.log('警告API響應:', data); // 調試用
+                
+                // 處理API返回的警告數據
+                let warnings = [];
+                
+                // 遍歷所有警告對象
+                for (const [key, warning] of Object.entries(data)) {
+                    if (warning && warning.name && warning.actionCode === 'ISSUE') {
+                        warnings.push({
+                            title: warning.name,
+                            description: `代碼: ${warning.code}<br>發布時間: ${warning.issueTime}<br>更新時間: ${warning.updateTime}`,
+                            code: warning.code,
+                            issueTime: warning.issueTime,
+                            updateTime: warning.updateTime
+                        });
+                    }
+                }
+                
+                if (warnings.length > 0) {
+                    displayWarningData(warnings);
+                } else {
+                    document.getElementById('warning-data').innerHTML = `
+                        <div style="margin: 8px 0; padding: 8px; background: #e8f5e8; border-radius: 5px; font-size: 13px; color: #27ae60;">
+                            ✅ 目前沒有天氣警告
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('警告API 請求失敗：', error);
+                document.getElementById('warning-data').innerHTML = '載入失敗，請稍後重試';
+            }
+        }
+        
+        async function loadBulletinData() {
+            try {
+                const response = await fetch(BULLETIN_API);
+                const data = await response.json();
+                
+                console.log('詳細報告API響應:', data); // 調試用
+                
+                // 處理天氣預報API數據
+                let bulletins = [];
+                
+                if (data.forecastDesc) {
+                    bulletins.push({
+                        title: '天氣預報',
+                        description: data.forecastDesc,
+                        pubDate: data.updateTime || new Date().toLocaleString('zh-HK')
+                    });
+                }
+                
+                if (data.outlook) {
+                    bulletins.push({
+                        title: '天氣展望',
+                        description: data.outlook,
+                        pubDate: data.updateTime || new Date().toLocaleString('zh-HK')
+                    });
+                }
+                
+                if (data.generalSituation) {
+                    bulletins.push({
+                        title: '一般天氣情況',
+                        description: data.generalSituation,
+                        pubDate: data.updateTime || new Date().toLocaleString('zh-HK')
+                    });
+                }
+                
+                if (bulletins.length > 0) {
+                    displayBulletinData(bulletins);
+                } else {
+                    document.getElementById('bulletin-data').innerHTML = `
+                        <div style="margin: 8px 0; padding: 8px; background: #e8f5e8; border-radius: 5px; font-size: 13px; color: #27ae60;">
+                            ✅ 目前沒有詳細報告
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('詳細報告API 請求失敗：', error);
+                document.getElementById('bulletin-data').innerHTML = '載入失敗，請稍後重試';
+            }
+        }
+        
+        function displayTemperatureData(temperatureData) {
+            const container = document.getElementById('temperature-data');
+            let html = '';
+            
+            // 顯示所有地區的氣溫數據
+            temperatureData.forEach(region => {
+                if (region.place && region.value) {
+                    html += `
+                        <div style="margin: 6px 0; padding: 4px; background: white; border-radius: 4px; font-size: 13px;">
+                            <strong>${region.place}</strong>: ${region.value}°C
+                        </div>
+                    `;
+                }
             });
+            
+            if (html === '') {
+                html = '暫無氣溫數據';
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function displayWarningData(warnings) {
+            const container = document.getElementById('warning-data');
+            let html = '';
+            
+            if (warnings && warnings.length > 0) {
+                warnings.forEach((warning, index) => {
+                    const title = warning.title || '天氣警告';
+                    const description = warning.description || '無詳細描述';
+                    
+                    html += `
+                        <div style="margin: 8px 0; padding: 10px; background: #ffe6e6; border-radius: 5px; font-size: 13px; text-align: left; border-left: 4px solid #e74c3c;">
+                            <strong style="color: #e74c3c; font-size: 14px;">⚠️ ${title}</strong><br>
+                            <div style="margin-top: 8px; color: #333;">${description}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                html = `
+                    <div style="margin: 8px 0; padding: 8px; background: #e8f5e8; border-radius: 5px; font-size: 13px; color: #27ae60;">
+                        ✅ 目前沒有天氣警告
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        function displayBulletinData(bulletins) {
+            const container = document.getElementById('bulletin-data');
+            let html = '';
+            
+            if (bulletins && bulletins.length > 0) {
+                bulletins.forEach((bulletin, index) => {
+                    const title = bulletin.title || '天氣詳細報告';
+                    const description = bulletin.description || '無詳細描述';
+                    const pubDate = bulletin.pubDate || '';
+                    
+                    // 清理HTML標籤並限制長度
+                    const cleanDescription = description.replace(/<[^>]*>/g, '').substring(0, 300);
+                    
+                    html += `
+                        <div style="margin: 8px 0; padding: 10px; background: #fff3cd; border-radius: 5px; font-size: 13px; text-align: left; border-left: 4px solid #f39c12;">
+                            <strong style="color: #f39c12; font-size: 14px;">📋 ${title}</strong><br>
+                            <div style="margin-top: 8px; color: #333; line-height: 1.4;">${cleanDescription}</div>
+                            ${pubDate ? `<div style="margin-top: 5px; font-size: 11px; color: #666;">發布時間: ${pubDate}</div>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                html = `
+                    <div style="margin: 8px 0; padding: 8px; background: #e8f5e8; border-radius: 5px; font-size: 13px; color: #27ae60;">
+                        ✅ 目前沒有詳細報告
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // 頁面載入時自動載入數據
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTemperatureData();
+            loadWarningData();
+            loadBulletinData();
+        });
+        
+        // 每5分鐘自動更新
+        setInterval(function() {
+            loadTemperatureData();
+            loadWarningData();
+            loadBulletinData();
+        }, 300000);
     </script>
 </body>
 </html>
