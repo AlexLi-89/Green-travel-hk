@@ -286,3 +286,145 @@ footer {
     margin-top: 10px;
     font-style: italic;
 }
+
+/* AI交通數據樣式 */
+.loading-section {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+.loading-section i {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.ai-traffic-info {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f0f7f0;
+    border-radius: 10px;
+    border-left: 4px solid #4a7c59;
+}
+
+.ai-traffic-info h4 {
+    color: #2c5530;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.ai-data-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.ai-data-item i {
+    font-size: 1.5rem;
+    color: #4a7c59;
+    width: 30px;
+}
+
+.ai-value {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #2c5530;
+}
+
+.ai-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.ai-source {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
+    margin: 0;
+    font-style: italic;
+}
+
+.api-unavailable {
+    text-align: center;
+    padding: 15px;
+    background: #fff3cd;
+    border-radius: 8px;
+    color: #856404;
+    margin: 15px 0;
+}
+
+.api-unavailable i {
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+/* 增強狀態網格 */
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.status-item {
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.status-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.status-value {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* 推薦框 */
+.recommendation-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: #e8f5e8;
+    border-radius: 8px;
+    border-left: 4px solid #4a7c59;
+}
+
+/* 位置描述 */
+.location-description {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .ai-data-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+}
