@@ -1,21 +1,82 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>綠色足跡 - 香港可持續旅遊平台</title>
+    <title>綠色足跡平台 - 人流稀疏景點推薦</title>
     <link rel="stylesheet" href="styles/style.css">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <h1>歡迎使用綠色足跡平台！</h1>
-    <p>這是一個幫助你規劃可持續旅行的工具。</p>
-    <!-- 我們後續會在這裡添加地圖、景點列表等 -->
-    <div id="map" style="height: 400px; width: 100%;"></div>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-leaf"></i> 綠色足跡平台</h1>
+            <p class="tagline">探索香港人流稀疏的綠色景點，享受寧靜時光</p>
+            <div class="controls">
+                <button class="btn active" id="btn-all">
+                    <i class="fas fa-list"></i> 所有景點
+                </button>
+                <button class="btn" id="btn-sparse">
+                    <i class="fas fa-tree"></i> 人流稀疏
+                </button>
+                <button class="btn" id="btn-crowded">
+                    <i class="fas fa-users"></i> 人流較多
+                </button>
+                <button class="btn btn-outline" id="btn-refresh">
+                    <i class="fas fa-sync-alt"></i> 更新數據
+                </button>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="card">
+                <h2><i class="fas fa-map-marker-alt"></i> 景點列表</h2>
+                <ul class="location-list" id="location-list">
+                    <!-- 景點將通過JS動態生成 -->
+                </ul>
+                
+                <div class="recommendation">
+                    <h3><i class="fas fa-lightbulb"></i> 今日推薦</h3>
+                    <p>根據當前數據，<strong id="recommended-location">香港公園</strong> 是今日最佳選擇，人流稀疏且天氣宜人。</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-info-circle"></i> 景點詳情</h2>
+                <div id="location-detail">
+                    <p>選擇左側景點查看詳細信息</p>
+                </div>
+                
+                <div class="weather-info" id="weather-info">
+                    <div class="weather-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div class="weather-details">
+                        <h3>今日天氣</h3>
+                        <p>晴，溫度 26°C，濕度 65%</p>
+                    </div>
+                </div>
+                
+                <div class="traffic-info" id="traffic-info">
+                    <h3>交通狀況</h3>
+                    <div class="traffic-status">
+                        <div class="traffic-light green"></div>
+                        <p>主要道路暢通，公共交通運作正常</p>
+                    </div>
+                </div>
+                
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt"></i> 地圖視圖 (整合開放數據後顯示)
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>綠色足跡平台 - 2025 Hackathon 參賽作品</p>
+            <p class="data-source">數據來源: data.gov.hk 及 portal.csdi.gov.hk</p>
+        </footer>
+    </div>
+
     <script src="scripts/script.js"></script>
-    
 </body>
 </html>
