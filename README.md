@@ -13,3 +13,6 @@ git push -u origin main
 git remote add origin https://github.com/AlexLi-89/Green-travel-hk.git
 git branch -M main
 git push -u origin main
+
+
+python3 -m http.server 8080
